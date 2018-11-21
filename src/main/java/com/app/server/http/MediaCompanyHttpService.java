@@ -5,8 +5,9 @@ import com.app.server.http.exceptions.APPNotFoundException;
 import com.app.server.http.utils.APPResponse;
 import com.app.server.http.utils.PATCH;
 import com.app.server.models.MediaCompany;
-import com.app.server.models.WishList;
+import com.app.server.models.WishlistMediaCompany;
 import com.app.server.services.MediaCompanyService;
+import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 
@@ -39,9 +40,10 @@ public class MediaCompanyHttpService {
 
     @GET
     @Produces({MediaType.APPLICATION_JSON})
-    public APPResponse getAll() {
+    public APPResponse getAll(@QueryParam("category") String category,
+                              @QueryParam("subCategory") String subCategory) {
 
-        return new APPResponse(service.getAll());
+        return new APPResponse(service.getAll(category, subCategory));
     }
 
     @GET
@@ -51,11 +53,11 @@ public class MediaCompanyHttpService {
         try {
             MediaCompany d = service.getOne(id);
             if (d == null)
-                throw new APPNotFoundException(56, "Wish List not found");
+                throw new APPNotFoundException(56, "WishlistMediaCompany List not found");
             return new APPResponse(d);
         }
         catch (IllegalArgumentException e) {
-            throw new APPNotFoundException(56, "Wish List not found");
+            throw new APPNotFoundException(56, "WishlistMediaCompany List not found");
         }
         catch (Exception e) {
             throw new APPInternalServerException(0, "Something happened. Come back later.");
@@ -66,7 +68,7 @@ public class MediaCompanyHttpService {
     @POST
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
-    public APPResponse create(Object request) {
+    public APPResponse create(Object request) throws JsonProcessingException {
         return new APPResponse(service.create(request));
     }
 
@@ -74,7 +76,12 @@ public class MediaCompanyHttpService {
     @Path("{id}")
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
-    public APPResponse update(@PathParam("id") String id, Object request) {
+    public APPResponse update(@PathParam("id") String id, MediaCompany request) {
+
+        if (request.getName() == null || request.getEmailAddress() == null ||
+        request.getPhoneNumber() == null){
+            return new APPResponse(400);
+        }
 
         return new APPResponse(service.update(id, request));
 
@@ -102,7 +109,7 @@ public class MediaCompanyHttpService {
     @Produces({ MediaType.APPLICATION_JSON})
     public APPResponse getOneWishList(@PathParam("id") String id,@PathParam("sid") String sid) {
         try {
-            WishList d = service.getOneWishList(id,sid);
+            WishlistMediaCompany d = service.getOneWishList(id,sid);
             if (d == null)
                 throw new APPNotFoundException(56,"User not found");
             return new APPResponse(d);
@@ -117,17 +124,17 @@ public class MediaCompanyHttpService {
     }
     //getting subresources
     @GET
-    @Path("{id}/wishlistAll")
+    @Path("{id}/wishlist")
     @Produces({ MediaType.APPLICATION_JSON})
     public APPResponse getWishLists(@PathParam("id") String id) {
         try {
-            List<WishList> wishLists = service.getWishList(id);
+            List<WishlistMediaCompany> wishLists = service.getWishList(id);
             if (wishLists == null || wishLists.isEmpty())
-                throw new APPNotFoundException(56,"WishList is empty for the user");
+                throw new APPNotFoundException(56,"WishlistBusinessCompany is empty for the user");
             return new APPResponse(wishLists);
         }
         catch(IllegalArgumentException e){
-            throw new APPNotFoundException(56,"WishList not found");
+            throw new APPNotFoundException(56,"WishlistBusinessCompany not found");
         }
         catch (Exception e) {
             throw new APPInternalServerException(0,e.getMessage());
@@ -145,7 +152,7 @@ public class MediaCompanyHttpService {
     }
 
     @PATCH
-    @Path("{id}/updatewishlist/{sid}")
+    @Path("{id}/updateWishlist/{sid}")
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
     public APPResponse updatewishlist(@PathParam("sid") String id, Object request){

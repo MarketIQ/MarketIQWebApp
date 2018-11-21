@@ -9,9 +9,15 @@ public class Session {
     String userId = null;
     String Name = null;
 
-    public Session(Users user) throws Exception{
-        this.userId = user.userId;
-        this.token = APPCrypt.encrypt(user.userId);
-        this.Name = user.userName;
+    public Session(BusinessCompany user) throws Exception{
+        this.userId = user.id;
+        this.token = APPCrypt.encrypt(user.id);
+        this.Name = user.name;
+    }
+
+    public Session(MediaCompany user, String role) throws Exception{
+        this.userId = user.id;
+        this.token = APPCrypt.encrypt(user.id);
+        this.Name = user.name;
     }
 }

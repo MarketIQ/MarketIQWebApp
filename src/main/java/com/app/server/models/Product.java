@@ -16,10 +16,12 @@ public class Product {
     String name;
     String startPrice;
     String endPrice;
+    String businessId;
+
     public String getBusinessId() {
         return businessId;
     }
-    String businessId;
+
     public Product(String name, String startPrice, String endPrice, String businessId) {
         this.name = name;
         this.startPrice = startPrice;
@@ -30,3 +32,4 @@ public class Product {
         this.id = id;
     }
 }
+

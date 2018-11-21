@@ -25,8 +25,8 @@ public class MongoPool {
         MongoClientOptions opts = builder.build();
 
         MongoClient mc = new MongoClient(new ServerAddress());
-        db =mc.getDatabase("market");
-        Logger.getLogger("org.mongodb.driver").setLevel(Level.WARNING);
+        db =mc.getDatabase("marketiq");
+        Logger.getLogger("org.mongodb.marketiq").setLevel(Level.WARNING);
     }
 
     public static MongoPool getInstance(){

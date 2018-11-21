@@ -1,24 +1,10 @@
-package com.app.server.services;
-
-import com.app.server.models.WishList;
-import com.app.server.util.MongoPool;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.mongodb.BasicDBObject;
-import com.mongodb.client.FindIterable;
-import com.mongodb.client.MongoCollection;
-import org.bson.Document;
-import org.bson.types.ObjectId;
-import org.json.JSONException;
-import org.json.JSONObject;
-import java.util.ArrayList;
+//package com.app.server.services;
 
 
 /**
  * Services run as singletons
  */
-
+/*
 public class WishListService {
 
     private static WishListService self;
@@ -38,21 +24,23 @@ public class WishListService {
         return self;
     }
 
-    public ArrayList<WishList> getAll() {
-        ArrayList<WishList> wishListList = new ArrayList<WishList>();
+    public ArrayList<WishlistBusinessCompany> getAll() {
+
+
+        ArrayList<WishlistBusinessCompany> wishListList = new ArrayList<WishlistBusinessCompany>();
 
         FindIterable<Document> results = wishListCollection.find();
         if (results == null) {
             return wishListList;
         }
         for (Document item : results) {
-            WishList wishlist = convertDocumentToWishList(item);
+            WishlistBusinessCompany wishlist = convertDocumentToWishList(item);
             wishListList.add(wishlist);
         }
         return wishListList;
     }
 
-    public WishList getOne(String id) {
+    public WishlistBusinessCompany getOne(String id) {
         BasicDBObject query = new BasicDBObject();
         query.put("_id", new ObjectId(id));
 
@@ -63,12 +51,12 @@ public class WishListService {
         return convertDocumentToWishList(item);
     }
 
-    public WishList create(Object request) {
+    public WishlistBusinessCompany create(Object request) {
 
         try {
             JSONObject json = null;
             json = new JSONObject(ow.writeValueAsString(request));
-            WishList wishlist = convertJsonToWishList(json);
+            WishlistBusinessCompany wishlist = convertJsonToWishList(json);
             Document doc = convertWishListToDocument(wishlist);
             wishListCollection.insertOne(doc);
             ObjectId id = (ObjectId)doc.get( "_id" );
@@ -112,8 +100,6 @@ public class WishListService {
     }
 
 
-
-
     public Object delete(String id) {
         BasicDBObject query = new BasicDBObject();
         query.put("_id", new ObjectId(id));
@@ -131,8 +117,8 @@ public class WishListService {
         return new JSONObject();
     }
 
-    private WishList convertDocumentToWishList(Document item) {
-        WishList wishlist = new WishList(
+    private WishlistBusinessCompany convertDocumentToWishList(Document item) {
+        WishlistBusinessCompany wishlist = new WishlistBusinessCompany(
                 item.getString("businessId"),
                 item.getString("wishListEntry"),
                 item.getString("creationDate")
@@ -141,7 +127,7 @@ public class WishListService {
         return wishlist;
     }
 
-    private Document convertWishListToDocument(WishList wishlist){
+    private Document convertWishListToDocument(WishlistBusinessCompany wishlist){
         Document doc = new Document
                 ("businessId", wishlist.getBusinessId())
                 .append("wishListEntry", wishlist.getWishListEntry())
@@ -149,8 +135,8 @@ public class WishListService {
         return doc;
     }
 
-    private WishList convertJsonToWishList(JSONObject json){
-        WishList wishlist = new WishList( json.getString("businessId"),
+    private WishlistBusinessCompany convertJsonToWishList(JSONObject json){
+        WishlistBusinessCompany wishlist = new WishlistBusinessCompany( json.getString("businessId"),
                 json.getString("wishListEntry"),
                 json.getString("creationDate")
         );
@@ -163,3 +149,4 @@ public class WishListService {
 
 } // end of main()
 
+*/

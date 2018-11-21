@@ -1,4 +1,4 @@
-package com.app.server.http;
+/*package com.app.server.http;
 
 import com.app.server.http.exceptions.APPInternalServerException;
 import com.app.server.http.exceptions.APPNotFoundException;
@@ -14,6 +14,8 @@ import java.util.List;
 
 import javax.annotation.security.PermitAll;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.HashMap;
@@ -48,9 +50,9 @@ public class UsersHttpService {
     @GET
     @Path("{id}")
     @Produces({ MediaType.APPLICATION_JSON})
-    public APPResponse getOne(@PathParam("id") String id) {
+    public APPResponse getOne(@Context HttpHeaders headers, @PathParam("id") String id) {
         try {
-            Users d = service.getOne(id);
+            Users d = service.getOne(headers,id);
             if (d == null)
                 throw new APPNotFoundException(56,"User not found");
             return new APPResponse(d);
@@ -98,3 +100,4 @@ public class UsersHttpService {
 
 
 }
+*/

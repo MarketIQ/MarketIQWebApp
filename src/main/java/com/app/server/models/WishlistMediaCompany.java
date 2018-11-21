@@ -1,10 +1,10 @@
 
 package com.app.server.models;
 
-public class WishList {
+public class WishlistMediaCompany {
 
-    public String getBusinessId() {
-        return businessId;
+    public String getMediaCompanyId() {
+        return mediaCompanyId;
     }
 
     public String getWishListEntry() {
@@ -16,18 +16,18 @@ public class WishList {
     }
 
     String wishListId;
-    String businessId;
+    String mediaCompanyId;
     String wishListEntry;
     String creationDate;
 
 
-    public WishList(String businessId, String wishListEntry, String creationDate) {
-        this.businessId=businessId;
+    public WishlistMediaCompany(String mediaCompanyId, String wishListEntry, String creationDate) {
+        this.mediaCompanyId=mediaCompanyId;
         this.wishListEntry=wishListEntry;
         this.creationDate=creationDate;
 
     }
-    public void setWishListId(String id) {
+    public void setMediaCompanyWishListId(String id) {
         this.wishListId= id;
     }
 }

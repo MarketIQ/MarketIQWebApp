@@ -1,34 +1,12 @@
-package com.app.server.services;
+//package com.app.server.services;
 
-import com.app.server.http.exceptions.APPBadRequestException;
-import com.app.server.http.exceptions.APPInternalServerException;
-import com.app.server.http.exceptions.APPNotFoundException;
-import com.app.server.http.exceptions.APPUnauthorizedException;
-import com.app.server.http.utils.APPCrypt;
-import com.app.server.http.utils.APPResponse;
-import com.app.server.models.Users;
-import com.app.server.models.WishList;
-import com.app.server.util.MongoPool;
-import com.fasterxml.jackson.core.JsonProcessingException;
-import com.fasterxml.jackson.databind.ObjectMapper;
-import com.fasterxml.jackson.databind.ObjectWriter;
-import com.mongodb.BasicDBObject;
-import com.mongodb.MongoClient;
-import com.mongodb.ServerAddress;
-import com.mongodb.client.FindIterable;
-import com.mongodb.client.MongoCollection;
-import com.mongodb.client.MongoDatabase;
-import org.bson.Document;
-import org.bson.types.ObjectId;
-import org.json.JSONException;
-import org.json.JSONObject;
-import java.util.ArrayList;
-import java.util.HashMap;
+//import com.app.server.models.Users;
+
 
 /**
  * Services run as singletons
  */
-
+/*
 public class UsersService {
 
     private static UsersService self;
@@ -49,6 +27,7 @@ public class UsersService {
     }
 
     public ArrayList<Users> getAll() {
+
         ArrayList<Users> userList = new ArrayList<Users>();
 
         FindIterable<Document> results = usersCollection.find();
@@ -62,7 +41,12 @@ public class UsersService {
         return userList;
     }
 
-    public Users getOne(String id) {
+    public Users getOne(HttpHeaders headers,String id) {
+        try {
+            checkAuthentication(headers, id);
+        } catch (Exception e) {
+            e.printStackTrace();
+        }
         BasicDBObject query = new BasicDBObject();
         query.put("_id" , new ObjectId(id));
 
@@ -169,8 +153,8 @@ public class UsersService {
 
         return user;
     }
-    /*
-    void checkAuthentication(HttpHeaders headers,String id) throws Exception{
+
+    void checkAuthentication(HttpHeaders headers, String id) throws Exception{
         List<String> authHeaders = headers.getRequestHeader(HttpHeaders.AUTHORIZATION);
         if (authHeaders == null)
             throw new APPUnauthorizedException(70,"No Authorization Headers");
@@ -180,9 +164,10 @@ public class UsersService {
             throw new APPUnauthorizedException(71,"Invalid token. Please try getting a new token");
         }
     }
-*/
+
 
 
 
 } // end of main()
 
+*/

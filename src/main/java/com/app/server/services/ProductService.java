@@ -1,4 +1,6 @@
 package com.app.server.services;
+import com.app.server.http.exceptions.APPUnauthorizedException;
+import com.app.server.http.utils.APPCrypt;
 import com.app.server.models.Product;
 import com.app.server.util.MongoPool;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -15,6 +17,8 @@ import org.bson.Document;
 import org.bson.types.ObjectId;
 import org.json.JSONException;
 import org.json.JSONObject;
+
+import javax.ws.rs.core.HttpHeaders;
 import java.util.ArrayList;
 import java.util.List;
 public class ProductService {
@@ -53,6 +57,7 @@ public class ProductService {
         return convertDocumentToProduct(item);
     }
     public Product create(String businessId, Object request) {
+
         try {
             JSONObject json = null;
             json = new JSONObject(ow.writeValueAsString(request));
@@ -130,11 +135,15 @@ public class ProductService {
         );
         return product;
     }
-    public List<Product> getAllProductsInBusiness(String businessId) {
+    public List<Product> getAllProductsInBusiness(HttpHeaders headers, String businessId) throws Exception {
+
+        if (!(checkAuthentication(headers,businessId)))
+            return null;
+
         BasicDBObject query = new BasicDBObject();
         query.put("businessId", businessId);
         List<Product> products = new ArrayList<>();
-        FindIterable<Document> resutl = productCollection.find(query);
+        FindIterable<Document> result = productCollection.find(query);
         //        MongoCursor<Document> iterator = productCollection.find(query).iterator();
 //
 //        BasicDBList list = new BasicDBList();
@@ -143,9 +152,22 @@ public class ProductService {
 //            list.add(doc);
 //        }
 //        System.out.println(JSON.serialize(list));
-        resutl.forEach((Block<Document>) document -> {
+        result.forEach((Block<Document>) document -> {
             products.add(convertDocumentToProduct(document));
         });
         return products;
+    }
+
+    //Authorization check
+    boolean checkAuthentication(HttpHeaders headers, String id) throws Exception{
+        List<String> authHeaders = headers.getRequestHeader(HttpHeaders.AUTHORIZATION);
+        if (authHeaders == null)
+            throw new APPUnauthorizedException(70,"No Authorization Headers");
+        String token = authHeaders.get(0);
+        String clearToken = APPCrypt.decrypt(token);
+        if (id.compareTo(clearToken) != 0) {
+            throw new APPUnauthorizedException(71,"Invalid token. Please try getting a new token");
+        }
+        return true;
     }
 }

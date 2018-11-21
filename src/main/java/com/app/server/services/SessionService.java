@@ -1,26 +1,19 @@
 package com.app.server.services;
-
+import com.app.server.models.MediaCompany;
+import com.app.server.models.Session;
 import com.app.server.http.exceptions.APPBadRequestException;
 import com.app.server.http.exceptions.APPInternalServerException;
 import com.app.server.http.exceptions.APPNotFoundException;
 import com.app.server.http.utils.APPCrypt;
-import com.app.server.models.Users;
-import com.app.server.models.Session;
+import com.app.server.models.BusinessCompany;
 import com.app.server.util.MongoPool;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import com.mongodb.BasicDBObject;
-import com.mongodb.client.FindIterable;
 import com.mongodb.client.MongoCollection;
 import org.bson.Document;
-import org.bson.types.ObjectId;
-import org.json.JSONException;
 import org.json.JSONObject;
-
-import java.util.ArrayList;
-import java.util.Arrays;
-import java.util.List;
 
 /**
  * Services run as singletons
@@ -30,10 +23,14 @@ public class SessionService {
 
     private static SessionService self;
     private ObjectWriter ow;
-    private MongoCollection<Document> usersCollection = null;
+    private MongoCollection<Document> businessusersCollection = null;
+    private MongoCollection<Document> mediaCompanyCollection = null;
+
 
     private SessionService() {
-        this.usersCollection = MongoPool.getInstance().getCollection("users");
+        this.businessusersCollection = MongoPool.getInstance().getCollection("businessusers");
+        this.mediaCompanyCollection = MongoPool.getInstance().getCollection("mediacompany");
+
         ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
 
     }
@@ -49,6 +46,9 @@ public class SessionService {
         JSONObject json = null;
         try {
             json = new JSONObject(ow.writeValueAsString(request));
+
+
+            Document item;
             if (!json.has("emailAddress"))
                 throw new APPBadRequestException(55, "missing emailAddress");
             if (!json.has("password"))
@@ -58,15 +58,26 @@ public class SessionService {
             query.put("emailAddress", json.getString("emailAddress"));
             query.put("password", APPCrypt.encrypt(json.getString("password")));
 
-            Document item = usersCollection.find(query).first();
-            if (item == null) {
-                throw new APPNotFoundException(0, "No user found matching credentials");
+            if(json.getString("usertype").equals("business")){
+                item = businessusersCollection.find(query).first();
+                if (item == null) {
+                    throw new APPNotFoundException(0, "No user found matching credentials");
+                }
+                BusinessCompany businessuser = convertDocumentToBusinessUser(item);
+                businessuser.setId(item.getObjectId("_id").toString());
+                return new Session(businessuser);
+            }
+            else{
+                item = mediaCompanyCollection.find(query).first();
+                if (item == null) {
+                    throw new APPNotFoundException(0, "No user found matching credentials");
+                }
+                MediaCompany mediaCompanyuser = convertDocumentToMediaCompanyUser(item);
+                mediaCompanyuser.setId(item.getObjectId("_id").toString());
+                return new Session(mediaCompanyuser,"mediaCompany");
             }
 
-            Users user = convertDocumentToUser(item);
 
-            user.setUserId(item.getObjectId("_id").toString());
-            return new Session(user);
         }
         catch (JsonProcessingException e) {
             throw new APPBadRequestException(33, e.getMessage());
@@ -83,17 +94,30 @@ public class SessionService {
     }
 
 
-    private Users convertDocumentToUser(Document item) {
-        Users user = new Users(
-                item.getString("userName"),
-                item.getString("userBusinessId"),
-                item.getString("userRole"),
-                item.getString("userEmailId")
+    private BusinessCompany convertDocumentToBusinessUser(Document item) {
+        BusinessCompany user = new BusinessCompany(
+                item.getString("name"),
+                item.getString("emailAddress"),
+                item.getString("address"),
+                item.getString("category"),
+                item.getString("phoneNumber")
         );
-        user.setUserId(item.getObjectId("_id").toString());
+        user.setId(item.getObjectId("_id").toString());
         return user;
     }
 
+    private MediaCompany convertDocumentToMediaCompanyUser(Document item) {
+        MediaCompany user = new MediaCompany(
+                item.getString("name"),
+                item.getString("category"),
+                item.getString("subcategory"),
+                item.getString("emailAddress"),
+                item.getString("address"),
+                item.getString("phoneNumber")
+        );
+        user.setId(item.getObjectId("_id").toString());
+        return user;
+    }
 
 
 } // end of main()

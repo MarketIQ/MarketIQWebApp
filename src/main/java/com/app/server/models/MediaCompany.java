@@ -2,31 +2,61 @@ package com.app.server.models;
 
 public class MediaCompany {
 
-    public String getMediaCompanyName() {
-        return mediaCompanyName;
+    public String getName() {
+        return name;
     }
 
-    public String getMediaCompanyEmailId() {
-        return mediaCompanyEmailId;
+    public String getEmailAddress() {
+        return emailAddress;
     }
 
-    public String getMediaCompanyPhone() {
-        return mediaCompanyPhone;
+    public String getPhoneNumber() {
+        return phoneNumber;
     }
 
-    String mediaCompanyId;
-    String mediaCompanyName;
-    String mediaCompanyEmailId;
-    String mediaCompanyPhone;
-
-
-    public MediaCompany(String mediaCompanyName, String mediaCompanyEmailId, String mediaCompanyPhone) {
-        this.mediaCompanyName=mediaCompanyName;
-        this.mediaCompanyEmailId=mediaCompanyEmailId;
-        this.mediaCompanyPhone=mediaCompanyPhone;
+    public String getCategory() {
+        return category;
     }
 
-    public void setMediaCompanyId(String id) {
-        this.mediaCompanyId= id;
+    public void setCategory(String category) {
+        this.category = category;
+    }
+
+    public String getSubCategory() {
+        return subCategory;
+    }
+
+    public void setSubCategory(String subCategory) {
+        this.subCategory = subCategory;
+    }
+
+    String id;
+    String name;
+    String category;
+    String subCategory;
+    String emailAddress;
+    String address;
+    String phoneNumber;
+
+    public String getAddress() {
+        return address;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public MediaCompany(String name, String category, String subCategory,
+                        String emailAddress, String address, String phoneNumber) {
+        this.name = name;
+        this.category=category;
+        this.subCategory=subCategory;
+        this.emailAddress=emailAddress;
+        this.address = address;
+        this.phoneNumber = phoneNumber;
+    }
+
+    public void setId(String id) {
+        this.id = id;
     }
 }
