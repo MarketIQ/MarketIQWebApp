@@ -1,5 +1,7 @@
 package com.app.server.models;
 
+import java.util.List;
+
 public class Company {
     
 
@@ -7,6 +9,15 @@ public class Company {
     String name;
     String type;
     String emailAddress;
+    List<Transaction> transactionList;
+
+    public List<Transaction> getTransactionList() {
+        return transactionList;
+    }
+
+    public void setTransactionList(List<Transaction> transactionList) {
+        this.transactionList = transactionList;
+    }
 
     public String getId() {
         return id;

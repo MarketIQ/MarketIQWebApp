@@ -11,7 +11,6 @@ import com.app.server.services.MediaCompanyService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
-import com.sun.xml.internal.xsom.impl.EmptyImpl;
 import org.json.JSONObject;
 
 import javax.annotation.security.PermitAll;

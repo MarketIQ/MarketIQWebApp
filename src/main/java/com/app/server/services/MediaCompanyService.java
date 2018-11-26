@@ -5,6 +5,8 @@ import com.app.server.http.exceptions.APPInternalServerException;
 import com.app.server.http.exceptions.APPUnauthorizedException;
 import com.app.server.http.utils.APPCrypt;
 import com.app.server.models.MediaCompany;
+import com.app.server.models.PaymentDetails;
+import com.app.server.models.Transaction;
 import com.app.server.models.WishlistMediaCompany;
 import com.app.server.util.MongoPool;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -18,7 +20,11 @@ import org.bson.types.ObjectId;
 import org.json.JSONException;
 import org.json.JSONObject;
 
+import javax.ws.rs.POST;
+import javax.ws.rs.Produces;
 import javax.ws.rs.core.HttpHeaders;
+import javax.ws.rs.core.MediaType;
+import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -32,11 +38,19 @@ public class MediaCompanyService {
     private ObjectWriter ow;
     private MongoCollection<Document> MediaCompanyCollection;
     private MongoCollection<Document> wishListCollection;
+    private MongoCollection<Document> subscriptionCollection;
+
+    private TransactionService thirdPartyService;
+
+
 
     private MediaCompanyService() {
         this.MediaCompanyCollection = MongoPool.getInstance().getCollection("mediacompany");
         this.wishListCollection = MongoPool.getInstance().getCollection("wishlistMediaCompany");
+        this.subscriptionCollection = MongoPool.getInstance().getCollection("subscription");
+
         ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
+        thirdPartyService = TransactionService.getInstance();
 
     }
 
@@ -341,6 +355,94 @@ public class MediaCompanyService {
         }
         return true;
     }
+
+//    @POST
+//    @Produces({ MediaType.APPLICATION_JSON})
+//    public PaymentDetails register_subscription(HttpHeaders headers, Object request) {
+//        try {
+//
+//            JSONObject json = null;
+//            json = new JSONObject(ow.writeValueAsString(request));
+//            PaymentDetails paymentDetails = convertJsonToSubscription(json);
+//
+//            //Check Authentication
+//            //TO-DO : Uncomment the authentication
+//            //checkAuthentication(headers, paymentDetails.getUserId());
+//
+//            //GetBusiness
+//            MediaCompany mediacompany = getOne(paymentDetails.getemailId());
+//
+//            //CreateReferenceID for payments
+//            //TO-DO : referenceID not being used, hence commented.
+//            //String referenceID = APPCrypt.encrypt(business.getId()+PAYMENT);
+//
+//            //call paymentGateway Service
+//            /*Transaction transaction = new Transaction(
+//                    business.getId(),
+//                    business.getCardName(),
+//                    paymentDetails.getTransactionType(),
+//                    paymentDetails.getAmount(),
+//                    "USD",
+//                    String.valueOf(Instant.now().getEpochSecond()),
+//                    "REQUESTED");*/
+//            Transaction transaction = new Transaction(
+//                    mediacompany.getEmailAddress(),
+//                    paymentDetails.getTransactionType(),
+//                    paymentDetails.getAmount(),
+//                    "USD",
+//                    String.valueOf(Instant.now().getEpochSecond()),
+//                    "REQUESTED");
+//
+//            try {
+//                transaction = thirdPartyService.makePayment(transaction);
+//                //update paymentDetails with response and persist
+//                paymentDetails.setAmountCharged(transaction.getPaymentAmount());
+//                paymentDetails.setAttemptState("SUCCESSFUL");
+//                paymentDetails.setTransactionTime(transaction.getPaymentTime());
+//            } catch (APPInternalServerException e){
+//                paymentDetails.setAmountCharged("0");
+//                paymentDetails.setAttemptState("FAILED");
+//            }
+//
+//            Document subscr = convertSubscriptionToDocument(paymentDetails);
+//            subscriptionCollection.insertOne(subscr);
+//            ObjectId id = (ObjectId) subscr.get("_id");
+//            paymentDetails.setId(id.toString());
+//
+//            return paymentDetails;
+//        } catch (JsonProcessingException e) {
+//            System.out.println("Failed to create a document");
+//            throw new APPInternalServerException(33, "PaymentDetails Failed");
+//        }  catch (java.lang.Exception e){
+//            System.out.println("Failed to create a document");
+//            throw new APPInternalServerException(33, "PaymentDetails Failed");
+//        }
+//    }
+//
+//    private Document convertSubscriptionToDocument(PaymentDetails paymentDetails){
+//        Document doc = new Document("amount", paymentDetails.getAmount())
+//                .append("amountCharged", paymentDetails.getAmountCharged())
+//                .append("attemptCount", paymentDetails.getAttemptCount())
+//                .append("attemptState", paymentDetails.getAttemptState())
+//                .append("contractLength", paymentDetails.getContractLength())
+//                .append("transactionTime", paymentDetails.getTransactionTime())
+//                .append("transactionType", paymentDetails.getTransactionType())
+//                .append("userId", paymentDetails.getemailId())
+//                .append("UserType", paymentDetails.getUserType());
+//
+//        return doc;
+//    }
+//
+//    private PaymentDetails convertJsonToSubscription(JSONObject json){
+//        PaymentDetails paymentDetails = new PaymentDetails(
+//                json.getString("emailId"),
+//                json.getString("amount"),
+//                json.getInt("contractLength"),
+//                json.getString("userType"));
+//        return paymentDetails;
+//    }
+
+
 
 } // end of main()
 

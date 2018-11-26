@@ -5,6 +5,7 @@ import com.app.server.http.exceptions.APPNotFoundException;
 import com.app.server.http.utils.APPResponse;
 import com.app.server.http.utils.PATCH;
 import com.app.server.models.MediaCompany;
+import com.app.server.models.PaymentDetails;
 import com.app.server.models.WishlistMediaCompany;
 import com.app.server.services.MediaCompanyService;
 import com.fasterxml.jackson.core.JsonProcessingException;
@@ -13,6 +14,8 @@ import com.fasterxml.jackson.databind.ObjectWriter;
 
 import javax.annotation.security.PermitAll;
 import javax.ws.rs.*;
+import javax.ws.rs.core.Context;
+import javax.ws.rs.core.HttpHeaders;
 import javax.ws.rs.core.MediaType;
 import javax.ws.rs.core.Response;
 import java.util.List;
@@ -169,6 +172,26 @@ public class MediaCompanyHttpService {
 
         return new APPResponse(service.deletewishlist(sid));
     }
+
+//    @POST
+//    @Path("{id}/subscription")
+//    @Consumes({ MediaType.APPLICATION_JSON})
+//    @Produces({ MediaType.APPLICATION_JSON})
+//    public APPResponse register_subscription(@Context HttpHeaders headers, Object request) {
+//        try {
+//            PaymentDetails paymentDetails = service.register_subscription(headers,request);
+//            if (paymentDetails == null)
+//                throw new APPNotFoundException(56,"WishList is empty for the user");
+//            return new APPResponse(paymentDetails);
+//        }
+//        catch(IllegalArgumentException e){
+//            throw new APPNotFoundException(56,"WishList not found");
+//        }
+//        catch (Exception e) {
+//            throw new APPInternalServerException(0,e.getMessage());
+//        }
+//
+//    }
 
 }
 
