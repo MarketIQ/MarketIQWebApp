@@ -77,7 +77,7 @@ public class BusinessCompanyService {
 
     public BusinessCompany getOne(String emailAddress) {
         BasicDBObject query = new BasicDBObject();
-        query.put("_id", new ObjectId(emailAddress));
+        query.put("emailAddress", emailAddress);
         Document item = businessCompanyCollection.find(query).first();
         if (item == null) {
             return null;
@@ -115,7 +115,8 @@ public class BusinessCompanyService {
             JSONObject json = null;
             json = new JSONObject(ow.writeValueAsString(request));
             BasicDBObject query = new BasicDBObject();
-            query.put("_id", new ObjectId(emailAddress));
+            query.put("emailAddress", emailAddress);
+            query.put("emailAddress", emailAddress);
             Document doc = new Document();
             if (json.has("name"))
                 doc.append("name", json.getString("name"));
@@ -135,9 +136,9 @@ public class BusinessCompanyService {
         }
     }
 
-    public Object delete(String id) {
+    public Object delete(String emailAddress) {
         BasicDBObject query = new BasicDBObject();
-        query.put("_id", new ObjectId(id));
+        query.put("emailAddress", emailAddress);
         businessCompanyCollection.deleteOne(query);
         return new JSONObject();
     }
@@ -180,10 +181,10 @@ public class BusinessCompanyService {
     }
 
     //get one wishlist
-    public WishlistBusinessCompany getOneWishList(String id, String sid) {
+    public WishlistBusinessCompany getOneWishList(String emailAddress, String sid) {
 
         BasicDBObject query = new BasicDBObject();
-        query.put("businessId", id);
+        query.put("emailAddress", emailAddress);
         query.put("_id", new ObjectId(sid));
 
         Document item_wl = wishListCollection.find(query).first();
@@ -213,11 +214,11 @@ public class BusinessCompanyService {
         return results;
     }
 
-    public WishlistBusinessCompany createWishList(String bid, Object request) {
+    public WishlistBusinessCompany createWishList(String emailAddress, Object request) {
         try {
             JSONObject json = null;
             json = new JSONObject(ow.writeValueAsString(request));
-            WishlistBusinessCompany wishlist = convertJsonToWishList(json, bid);
+            WishlistBusinessCompany wishlist = convertJsonToWishList(json, emailAddress);
             Document doc = convertWishListToDocument(wishlist);
             wishListCollection.insertOne(doc);
 
@@ -249,7 +250,7 @@ public class BusinessCompanyService {
 
         WishlistBusinessCompany wl = new WishlistBusinessCompany(
 
-                item.getString("businessId"),
+                item.getString("emailAddress"),
                 item.getString("wishListEntry"),
                 item.getString("creationDate")
         );
@@ -257,9 +258,9 @@ public class BusinessCompanyService {
         return wl;
     }
 
-    private WishlistBusinessCompany convertJsonToWishList(JSONObject json, String bid) {
+    private WishlistBusinessCompany convertJsonToWishList(JSONObject json, String emailAddress) {
         WishlistBusinessCompany wishlist = new WishlistBusinessCompany(
-                bid,
+                emailAddress,
                 json.getString("wishListEntry"),
                 json.getString("creationDate")
         );
@@ -268,23 +269,23 @@ public class BusinessCompanyService {
     }
 
     private Document convertWishListToDocument(WishlistBusinessCompany wishlist) {
-        Document doc = new Document("businessId", wishlist.getBusinessId())
+        Document doc = new Document("emailAddress", wishlist.getEmailAddress())
                 .append("wishListEntry", wishlist.getWishListEntry())
                 .append("creationDate", wishlist.getCreationDate());
         return doc;
     }
 
-    public Object updateWishlist(String id, Object request) {
+    public Object updateWishlist(String emailAddress, Object request) {
         try {
             JSONObject json = null;
             json = new JSONObject(ow.writeValueAsString(request));
 
             BasicDBObject query = new BasicDBObject();
-            query.put("_id", new ObjectId(id));
+            query.put("emailAddress", emailAddress);
 
             Document doc = new Document();
-            if (json.has("businessId"))
-                doc.append("businessId", json.getString("businessId"));
+            if (json.has("emailAddress"))
+                doc.append("emailAddress", json.getString("emailAddress"));
             if (json.has("wishListEntry"))
                 doc.append("wishListEntry", json.getString("wishListEntry"));
             if (json.has("creationDate"))

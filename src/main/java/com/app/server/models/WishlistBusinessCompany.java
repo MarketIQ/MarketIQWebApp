@@ -3,8 +3,8 @@ package com.app.server.models;
 
 public class WishlistBusinessCompany {
 
-    public String getBusinessId() {
-        return businessId;
+    public String getEmailAddress() {
+        return emailAddress;
     }
 
     public String getWishListEntry() {
@@ -16,13 +16,13 @@ public class WishlistBusinessCompany {
     }
 
     String wishListId;
-    String businessId;
+    String emailAddress;
     String wishListEntry;
     String creationDate;
 
 
-    public WishlistBusinessCompany(String businessId, String wishListEntry, String creationDate) {
-        this.businessId=businessId;
+    public WishlistBusinessCompany(String emailAddress, String wishListEntry, String creationDate) {
+        this.emailAddress=emailAddress;
         this.wishListEntry=wishListEntry;
         this.creationDate=creationDate;
 

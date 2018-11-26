@@ -2,6 +2,8 @@ package com.app.server.http;
 
 import com.app.server.http.exceptions.APPInternalServerException;
 import com.app.server.http.exceptions.APPNotFoundException;
+import com.app.server.http.exceptions.APPUnauthorizedException;
+import com.app.server.http.utils.APPCrypt;
 import com.app.server.http.utils.APPResponse;
 import com.app.server.http.utils.PATCH;
 import com.app.server.models.MediaCompany;
@@ -50,11 +52,11 @@ public class MediaCompanyHttpService {
     }
 
     @GET
-    @Path("{id}")
+    @Path("{emailAddress}")
     @Produces({MediaType.APPLICATION_JSON})
-    public APPResponse getOne(@PathParam("id") String id) {
+    public APPResponse getOne(@PathParam("emailAddress") String emailAddress) {
         try {
-            MediaCompany d = service.getOne(id);
+            MediaCompany d = service.getOne(emailAddress);
             if (d == null)
                 throw new APPNotFoundException(56, "WishlistMediaCompany List not found");
             return new APPResponse(d);
@@ -76,17 +78,17 @@ public class MediaCompanyHttpService {
     }
 
     @PATCH
-    @Path("{id}")
+    @Path("{emailAddress}")
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
-    public APPResponse update(@PathParam("id") String id, MediaCompany request) {
+    public APPResponse update(@PathParam("emailAddress") String emailAddress, MediaCompany request) {
 
         if (request.getName() == null || request.getEmailAddress() == null ||
         request.getPhoneNumber() == null){
             return new APPResponse(400);
         }
 
-        return new APPResponse(service.update(id, request));
+        return new APPResponse(service.update(emailAddress, request));
 
     }
 
@@ -98,21 +100,21 @@ public class MediaCompanyHttpService {
     }
 
     @DELETE
-    @Path("{id}")
+    @Path("{emailAddress}")
     @Produces({MediaType.APPLICATION_JSON})
-    public APPResponse delete(@PathParam("id") String id) {
+    public APPResponse delete(@PathParam("emailAddress") String emailAddress) {
 
-        return new APPResponse(service.delete(id));
+        return new APPResponse(service.delete(emailAddress));
 
     }
     //getting one subresource
     //getOneWishList
     @GET
-    @Path("{id}/getwishlist/{sid}")
+    @Path("{emailAddress}/getwishlist/{sid}")
     @Produces({ MediaType.APPLICATION_JSON})
-    public APPResponse getOneWishList(@PathParam("id") String id,@PathParam("sid") String sid) {
+    public APPResponse getOneWishList(@PathParam("emailAddress") String emailAddress, @PathParam("sid") String sid) {
         try {
-            WishlistMediaCompany d = service.getOneWishList(id,sid);
+            WishlistMediaCompany d = service.getOneWishList(emailAddress,sid);
             if (d == null)
                 throw new APPNotFoundException(56,"User not found");
             return new APPResponse(d);
@@ -127,11 +129,11 @@ public class MediaCompanyHttpService {
     }
     //getting subresources
     @GET
-    @Path("{id}/wishlist")
+    @Path("{emailAddress}/wishlist")
     @Produces({ MediaType.APPLICATION_JSON})
-    public APPResponse getWishLists(@PathParam("id") String id) {
+    public APPResponse getWishLists(@PathParam("emailAddress") String emailAddress) {
         try {
-            List<WishlistMediaCompany> wishLists = service.getWishList(id);
+            List<WishlistMediaCompany> wishLists = service.getWishList(emailAddress);
             if (wishLists == null || wishLists.isEmpty())
                 throw new APPNotFoundException(56,"WishlistBusinessCompany is empty for the user");
             return new APPResponse(wishLists);
@@ -147,30 +149,68 @@ public class MediaCompanyHttpService {
 
     //Creating subresources
     @POST
-    @Path("{id}/wishlist")
+    @Path("{emailAddress}/wishlist")
     @Consumes({ MediaType.APPLICATION_JSON})
     @Produces({ MediaType.APPLICATION_JSON})
-    public APPResponse createWishList(@PathParam("id") String id,Object request) {
-        return new APPResponse(service.createWishList(id,request));
+    public APPResponse createWishList(@PathParam("emailAddress") String emailAddress, Object request) {
+        return new APPResponse(service.createWishList(emailAddress,request));
     }
 
     @PATCH
-    @Path("{id}/updateWishlist/{sid}")
+    @Path("{emailAddress}/updateWishlist/{sid}")
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
-    public APPResponse updatewishlist(@PathParam("sid") String id, Object request){
+    public APPResponse updatewishlist(@PathParam("sid") String emailAddress, Object request){
 
-        return new APPResponse(service.updatewishlist(id,request));
+        return new APPResponse(service.updatewishlist(emailAddress,request));
 
     }
 
     //delete subresource
     @DELETE
-    @Path("{id}/deletewishlist/{sid}")
+    @Path("{emailAddress}/deletewishlist/{sid}")
     @Produces({ MediaType.APPLICATION_JSON})
     public APPResponse deletewishlist(@PathParam("sid") String sid) {
 
         return new APPResponse(service.deletewishlist(sid));
+    }
+
+    @POST
+    @Path("{emailAddress}/paymentdetails")
+    @Consumes({ MediaType.APPLICATION_JSON})
+    @Produces({ MediaType.APPLICATION_JSON})
+    public APPResponse addPaymentDetails(@Context HttpHeaders headers, @PathParam("emailAddress") String emailAddress, Object request) throws Exception {
+        //check authentication
+        if (!(checkAuthentication(headers, emailAddress))){
+            throw new APPUnauthorizedException(401,"Token Not found");
+        }
+        //add payment deatils
+        try {
+            PaymentDetails paymentDetails = service.addPaymentDetails(request);
+            if (paymentDetails == null)
+                throw new APPNotFoundException(56,"PaymentDetails is empty for the user");
+            return new APPResponse(paymentDetails);
+        }
+        catch(IllegalArgumentException e){
+            throw new APPNotFoundException(56,"PaymentDetails not found");
+        }
+        catch (Exception e) {
+            throw new APPInternalServerException(0,e.getMessage());
+        }
+
+    }
+
+    //Authorization check
+    boolean checkAuthentication(HttpHeaders headers, String id) throws Exception {
+        List<String> authHeaders = headers.getRequestHeader(HttpHeaders.AUTHORIZATION);
+        if (authHeaders == null)
+            throw new APPUnauthorizedException(70, "No Authorization Headers");
+        String token = authHeaders.get(0);
+        String clearToken = APPCrypt.decrypt(token);
+        if (id.compareTo(clearToken) != 0) {
+            throw new APPUnauthorizedException(71, "Invalid token. Please try getting a new token");
+        }
+        return true;
     }
 
 //    @POST

@@ -2,12 +2,10 @@ package com.app.server.services;
 
 import com.app.server.http.exceptions.APPConflictException;
 import com.app.server.http.exceptions.APPInternalServerException;
+import com.app.server.http.exceptions.APPNotFoundException;
 import com.app.server.http.exceptions.APPUnauthorizedException;
 import com.app.server.http.utils.APPCrypt;
-import com.app.server.models.MediaCompany;
-import com.app.server.models.PaymentDetails;
-import com.app.server.models.Transaction;
-import com.app.server.models.WishlistMediaCompany;
+import com.app.server.models.*;
 import com.app.server.util.MongoPool;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
@@ -38,19 +36,16 @@ public class MediaCompanyService {
     private ObjectWriter ow;
     private MongoCollection<Document> MediaCompanyCollection;
     private MongoCollection<Document> wishListCollection;
-    private MongoCollection<Document> subscriptionCollection;
-
-    private TransactionService thirdPartyService;
-
+    private MongoCollection<Document> paymentCollection;
 
 
     private MediaCompanyService() {
         this.MediaCompanyCollection = MongoPool.getInstance().getCollection("mediacompany");
         this.wishListCollection = MongoPool.getInstance().getCollection("wishlistMediaCompany");
-        this.subscriptionCollection = MongoPool.getInstance().getCollection("subscription");
+        this.paymentCollection = MongoPool.getInstance().getCollection("payments");
+
 
         ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
-        thirdPartyService = TransactionService.getInstance();
 
     }
 
@@ -355,6 +350,70 @@ public class MediaCompanyService {
         }
         return true;
     }
+
+
+    public PaymentDetails addPaymentDetails(Object request) throws JsonProcessingException {
+
+
+        JSONObject json = null;
+        json = new JSONObject(ow.writeValueAsString(request));
+        PaymentDetails paymentDetails = convertJsonToPaymentDetails(json);
+        String email = paymentDetails.getEmailAddress();
+
+        //GetBusiness
+        MediaCompany mediaCompany = getOne(email);
+        if (mediaCompany == null) {
+            throw new APPNotFoundException(404, "EmailAddress mismmatch error!!!");
+
+        }
+
+        BasicDBObject query = new BasicDBObject();
+        query.put("emailAddress", email);
+        Document document = paymentCollection.find(query).first();
+        PaymentDetails existingPaymentDetails=new PaymentDetails();
+        if (document == null) {
+            Document paymentDoc = convertPaymentDetailsToDocument(paymentDetails);
+            paymentCollection.insertOne(paymentDoc);
+        } else {
+            existingPaymentDetails = convertDocumentToPaymentDetails(document);
+            existingPaymentDetails.getPaymentMethodList().add(paymentDetails.getPaymentMethodList().get(0));
+
+            Document paymentDoc = convertPaymentDetailsToDocument(existingPaymentDetails);
+            paymentCollection.insertOne(paymentDoc);
+        }
+        return existingPaymentDetails;
+
+
+    }
+
+    private Document convertPaymentDetailsToDocument(PaymentDetails paymentDetails) {
+        Document doc = new Document("emailAddress", paymentDetails.getEmailAddress())
+                .append("paymentMethods", paymentDetails.getPaymentMethodList());
+        return doc;
+    }
+
+
+    private PaymentDetails convertJsonToPaymentDetails(JSONObject json) {
+
+        List<PaymentMethod> paymentMethods = (List<PaymentMethod>) json.getJSONObject("paymentMethods");
+        PaymentDetails paymentDetails = new PaymentDetails(
+                json.getString("emailAddress"), paymentMethods
+        );
+
+        return paymentDetails;
+    }
+
+    private PaymentDetails convertDocumentToPaymentDetails(Document item) {
+
+        PaymentDetails paymentDetails = new PaymentDetails(
+
+                item.getString("emailAddress"),
+                (List<PaymentMethod>) item.get("paymentMethods")
+        );
+        //paymentDetails.set(item.getObjectId("_id").toString());
+        return paymentDetails;
+    }
+
 
 //    @POST
 //    @Produces({ MediaType.APPLICATION_JSON})
