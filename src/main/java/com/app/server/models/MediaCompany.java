@@ -30,7 +30,7 @@ public class MediaCompany {
         this.subCategory = subCategory;
     }
 
-    String id;
+    //String id;
     String name;
     String category;
     String subCategory;
@@ -46,17 +46,14 @@ public class MediaCompany {
         this.address = address;
     }
 
-    public MediaCompany(String name, String category, String subCategory,
-                        String emailAddress, String address, String phoneNumber) {
-        this.name = name;
-        this.category=category;
-        this.subCategory=subCategory;
+    public MediaCompany(
+                        String emailAddress) {
+
         this.emailAddress=emailAddress;
-        this.address = address;
-        this.phoneNumber = phoneNumber;
+
     }
 
-    public void setId(String id) {
-        this.id = id;
-    }
+//    public void setId(String id) {
+//        this.id = id;
+//    }
 }

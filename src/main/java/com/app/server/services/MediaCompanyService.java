@@ -2,7 +2,6 @@ package com.app.server.services;
 
 import com.app.server.http.exceptions.APPConflictException;
 import com.app.server.http.exceptions.APPInternalServerException;
-import com.app.server.http.exceptions.APPNotFoundException;
 import com.app.server.http.exceptions.APPUnauthorizedException;
 import com.app.server.http.utils.APPCrypt;
 import com.app.server.models.*;
@@ -18,11 +17,7 @@ import org.bson.types.ObjectId;
 import org.json.JSONException;
 import org.json.JSONObject;
 
-import javax.ws.rs.POST;
-import javax.ws.rs.Produces;
 import javax.ws.rs.core.HttpHeaders;
-import javax.ws.rs.core.MediaType;
-import java.time.Instant;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -41,7 +36,7 @@ public class MediaCompanyService {
 
     private MediaCompanyService() {
         this.MediaCompanyCollection = MongoPool.getInstance().getCollection("mediacompany");
-        this.wishListCollection = MongoPool.getInstance().getCollection("wishlistMediaCompany");
+        this.wishListCollection = MongoPool.getInstance().getCollection("wishlist");
         this.paymentCollection = MongoPool.getInstance().getCollection("payments");
 
 
@@ -115,8 +110,8 @@ public class MediaCompanyService {
             MediaCompany mediaCompany = convertJsonToMediaCompany(json);
             Document doc = convertMediaCompanyToDocument(mediaCompany);
             MediaCompanyCollection.insertOne(doc);
-            ObjectId id = (ObjectId) doc.get("_id");
-            mediaCompany.setId(id.toString());
+//            ObjectId id = (ObjectId) doc.get("_id");
+//            mediaCompany.setId(id.toString());
             return mediaCompany;
         }
 
@@ -172,14 +167,8 @@ public class MediaCompanyService {
 
     private MediaCompany convertDocumentToMediaCompany(Document item) {
         MediaCompany mediacompany = new MediaCompany(
-                item.getString("name"),
-                item.getString("category"),
-                item.getString("subCategory"),
-                item.getString("emailAddress"),
-                item.getString("address"),
-                item.getString("phoneNumber")
+                item.getString("emailAddress")
         );
-        mediacompany.setId(item.getObjectId("_id").toString());
         return mediacompany;
     }
 
@@ -195,148 +184,143 @@ public class MediaCompanyService {
     }
 
     private MediaCompany convertJsonToMediaCompany(JSONObject json) {
-        MediaCompany mediacompany = new MediaCompany(json.getString("name"),
-                json.getString("category"),
-                json.getString("subCategory"),
-                json.getString("emailAddress"),
-                json.getString("address"),
-                json.getString("phoneNumber")
+        MediaCompany mediacompany = new MediaCompany(
+                json.getString("emailAddress")
+
         );
 
         return mediacompany;
     }
 
     //get one wishlist
-    public WishlistMediaCompany getOneWishList(String id, String sid) throws Exception {
-
-        //  if (!(checkAuthentication(headers,id)))
-        //      return null;
-
-        BasicDBObject query = new BasicDBObject();
-        query.put("mediaCompanyId", id);
-        query.put("_id", new ObjectId(sid));
-
-        Document item_wl = wishListCollection.find(query).first();
-        if (item_wl == null) {
-            return null;
-        }
-        WishlistMediaCompany wl = convertDocumentToWishList(item_wl);
-        return wl;
-    }
-
-    public ArrayList<WishlistMediaCompany> getWishList(String id) throws Exception {
-
-        // if (!(checkAuthentication(headers,id)))
-        //    return null;
-
-        BasicDBObject query = new BasicDBObject();
-        query.put("mediaCompanyId", id);
-        FindIterable<Document> documents = wishListCollection.find(query);
-
-        if (documents == null) {
-            return null;
-        }
-
-        ArrayList<WishlistMediaCompany> results = new ArrayList<>();
-        for (Document item : documents) {
-            WishlistMediaCompany wishList = convertDocumentToWishList(item);
-            results.add(wishList);
-        }
-
-        return results;
-    }
-
-    public WishlistMediaCompany createWishList(String bid, Object request) {
-
-
-        try {
-            JSONObject json = null;
-            json = new JSONObject(ow.writeValueAsString(request));
-            WishlistMediaCompany wishlist = convertJsonToWishList(json, bid);
-            Document doc = convertWishListToDocument(wishlist);
-            wishListCollection.insertOne(doc);
-
-            ObjectId id = (ObjectId) doc.get("_id");
-            wishlist.setMediaCompanyWishListId(id.toString());
-            return wishlist;
-
-        } catch (JsonProcessingException e) {
-            System.out.println("Failed to create a document");
-            return null;
-        }
-    }
-
-    public Object deletewishlist(String sid) {
-
-        BasicDBObject query = new BasicDBObject();
-
-        query.put("_id", new ObjectId(sid));
-
-        wishListCollection.deleteOne(query);
-
-        return new JSONObject();
-    }
-
-    private WishlistMediaCompany convertDocumentToWishList(Document item) {
-
-        WishlistMediaCompany wl = new WishlistMediaCompany(
-
-                item.getString("mediaCompanyId"),
-                item.getString("wishListEntry"),
-                item.getString("creationDate")
-        );
-        wl.setMediaCompanyWishListId(item.getObjectId("_id").toString());
-        return wl;
-    }
-
-    private WishlistMediaCompany convertJsonToWishList(JSONObject json, String bid) {
-        WishlistMediaCompany wishlist = new WishlistMediaCompany(
-                bid,
-                json.getString("wishListEntry"),
-                json.getString("creationDate")
-        );
-
-        return wishlist;
-    }
-
-    private Document convertWishListToDocument(WishlistMediaCompany wishlist) {
-        Document doc = new Document("mediaCompanyId", wishlist.getMediaCompanyId())
-                .append("wishListEntry", wishlist.getWishListEntry())
-                .append("creationDate", wishlist.getCreationDate());
-        return doc;
-    }
-
-    public Object updatewishlist(String id, Object request) {
-        try {
-            JSONObject json = null;
-            json = new JSONObject(ow.writeValueAsString(request));
-
-            BasicDBObject query = new BasicDBObject();
-            query.put("_id", new ObjectId(id));
-
-            Document doc = new Document();
-            if (json.has("mediaCompanyId"))
-                doc.append("mediaCompanyId", json.getString("mediaCompanyId"));
-            if (json.has("wishListEntry"))
-                doc.append("wishListEntry", json.getString("wishListEntry"));
-            if (json.has("creationDate"))
-                doc.append("creationDate", json.getString("creationDate"));
-
-
-            Document set = new Document("$set", doc);
-            wishListCollection.updateOne(query, set);
-            return request;
-
-        } catch (JSONException e) {
-            System.out.println("Failed to update a document");
-            return null;
-
-
-        } catch (JsonProcessingException e) {
-            System.out.println("Failed to create a document");
-            return null;
-        }
-    }
+//    public Wishlist getOneWishList(String id, String sid) throws Exception {
+//
+//        //  if (!(checkAuthentication(headers,id)))
+//        //      return null;
+//
+//        BasicDBObject query = new BasicDBObject();
+//        query.put("mediaCompanyId", id);
+//        query.put("_id", new ObjectId(sid));
+//
+//        Document item_wl = wishListCollection.find(query).first();
+//        if (item_wl == null) {
+//            return null;
+//        }
+//        Wishlist wl = convertDocumentToWishList(item_wl);
+//        return wl;
+//    }
+//
+//    public ArrayList<Wishlist> getWishList(String id) throws Exception {
+//
+//        // if (!(checkAuthentication(headers,id)))
+//        //    return null;
+//
+//        BasicDBObject query = new BasicDBObject();
+//        query.put("mediaCompanyId", id);
+//        FindIterable<Document> documents = wishListCollection.find(query);
+//
+//        if (documents == null) {
+//            return null;
+//        }
+//
+//        ArrayList<Wishlist> results = new ArrayList<>();
+//        for (Document item : documents) {
+//            Wishlist wishList = convertDocumentToWishList(item);
+//            results.add(wishList);
+//        }
+//
+//        return results;
+//    }
+//
+//    public Wishlist createWishList(String bid, Object request) {
+//
+//
+//        try {
+//            JSONObject json = null;
+//            json = new JSONObject(ow.writeValueAsString(request));
+//            Wishlist wishlist = convertJsonToWishList(json, bid);
+//            Document doc = convertWishListToDocument(wishlist);
+//            wishListCollection.insertOne(doc);
+//
+//            return wishlist;
+//
+//        } catch (JsonProcessingException e) {
+//            System.out.println("Failed to create a document");
+//            return null;
+//        }
+//    }
+//
+//    public Object deletewishlist(String sid) {
+//
+//        BasicDBObject query = new BasicDBObject();
+//
+//        query.put("_id", new ObjectId(sid));
+//
+//        wishListCollection.deleteOne(query);
+//
+//        return new JSONObject();
+//    }
+//
+//    private Wishlist convertDocumentToWishList(Document item) {
+//
+//        Wishlist wl = new Wishlist(
+//
+//                item.getString("mediaCompanyId"),
+//                item.getString("wishListEntry"),
+//                item.getString("creationDate")
+//        );
+//        wl.setWishListId(item.getObjectId("_id").toString());
+//        return wl;
+//    }
+//
+//    private Wishlist convertJsonToWishList(JSONObject json, String bid) {
+//        Wishlist wishlist = new Wishlist(
+//                bid,
+//                json.getString("wishListEntry"),
+//                json.getString("creationDate")
+//        );
+//
+//        return wishlist;
+//    }
+//
+//    private Document convertWishListToDocument(Wishlist wishlist) {
+//        Document doc = new Document("emailAddress", wishlist.getEmailAddress())
+//                .append("wishListEntry", wishlist.getWishListEntry())
+//                .append("creationDate", wishlist.getCreationDate());
+//        return doc;
+//    }
+//
+//    public Object updatewishlist(String id, Object request) {
+//        try {
+//            JSONObject json = null;
+//            json = new JSONObject(ow.writeValueAsString(request));
+//
+//            BasicDBObject query = new BasicDBObject();
+////            query.put("_id", new ObjectId(id));
+//
+//            Document doc = new Document();
+//            if (json.has("emailAddress"))
+//                doc.append("emailAddress", json.getString("emailAddress"));
+//            if (json.has("wishListEntry"))
+//                doc.append("wishListEntry", json.getString("wishListEntry"));
+//            if (json.has("creationDate"))
+//                doc.append("creationDate", json.getString("creationDate"));
+//
+//
+//            Document set = new Document("$set", doc);
+//            wishListCollection.updateOne(query, set);
+//            return request;
+//
+//        } catch (JSONException e) {
+//            System.out.println("Failed to update a document");
+//            return null;
+//
+//
+//        } catch (JsonProcessingException e) {
+//            System.out.println("Failed to create a document");
+//            return null;
+//        }
+//    }
 
     //Authorization check
     boolean checkAuthentication(HttpHeaders headers, String id) throws Exception {
@@ -351,68 +335,75 @@ public class MediaCompanyService {
         return true;
     }
 
-
-    public PaymentDetails addPaymentDetails(Object request) throws JsonProcessingException {
-
-
-        JSONObject json = null;
-        json = new JSONObject(ow.writeValueAsString(request));
-        PaymentDetails paymentDetails = convertJsonToPaymentDetails(json);
-        String email = paymentDetails.getEmailAddress();
-
-        //GetBusiness
-        MediaCompany mediaCompany = getOne(email);
-        if (mediaCompany == null) {
-            throw new APPNotFoundException(404, "EmailAddress mismmatch error!!!");
-
-        }
-
-        BasicDBObject query = new BasicDBObject();
-        query.put("emailAddress", email);
-        Document document = paymentCollection.find(query).first();
-        PaymentDetails existingPaymentDetails=new PaymentDetails();
-        if (document == null) {
-            Document paymentDoc = convertPaymentDetailsToDocument(paymentDetails);
-            paymentCollection.insertOne(paymentDoc);
-        } else {
-            existingPaymentDetails = convertDocumentToPaymentDetails(document);
-            existingPaymentDetails.getPaymentMethodList().add(paymentDetails.getPaymentMethodList().get(0));
-
-            Document paymentDoc = convertPaymentDetailsToDocument(existingPaymentDetails);
-            paymentCollection.insertOne(paymentDoc);
-        }
-        return existingPaymentDetails;
-
-
-    }
-
-    private Document convertPaymentDetailsToDocument(PaymentDetails paymentDetails) {
-        Document doc = new Document("emailAddress", paymentDetails.getEmailAddress())
-                .append("paymentMethods", paymentDetails.getPaymentMethodList());
-        return doc;
-    }
+//
+//    public PaymentDetails addPaymentDetails(Object request) throws JsonProcessingException {
+//
+//
+//        JSONObject json = null;
+//        json = new JSONObject(ow.writeValueAsString(request));
+//        PaymentDetails paymentDetails = convertJsonToPaymentDetails(json);
+//        String email = paymentDetails.getEmailAddress();
+//
+//        //GetBusiness
+//        MediaCompany mediaCompany = getOne(email);
+//        if (mediaCompany == null) {
+//            throw new APPNotFoundException(404, "EmailAddress mismmatch error!!!");
+//
+//        }
+//
+//        BasicDBObject query = new BasicDBObject();
+//        query.put("emailAddress", email);
+//        Document document = paymentCollection.find(query).first();
+//        PaymentDetails existingPaymentDetails=new PaymentDetails();
+//        if (document == null) {
+//            Document paymentDoc = convertPaymentDetailsToDocument(paymentDetails);
+//            paymentCollection.insertOne(paymentDoc);
+//        } else {
+//            existingPaymentDetails = convertDocumentToPaymentDetails(document);
+//            existingPaymentDetails.getPaymentMethodList().add(paymentDetails.getPaymentMethodList().get(0));
+//
+//            Document paymentDoc = convertPaymentDetailsToDocument(existingPaymentDetails);
+//            paymentCollection.insertOne(paymentDoc);
+//        }
+//        return existingPaymentDetails;
 
 
-    private PaymentDetails convertJsonToPaymentDetails(JSONObject json) {
-
-        List<PaymentMethod> paymentMethods = (List<PaymentMethod>) json.getJSONObject("paymentMethods");
-        PaymentDetails paymentDetails = new PaymentDetails(
-                json.getString("emailAddress"), paymentMethods
-        );
-
-        return paymentDetails;
-    }
-
-    private PaymentDetails convertDocumentToPaymentDetails(Document item) {
-
-        PaymentDetails paymentDetails = new PaymentDetails(
-
-                item.getString("emailAddress"),
-                (List<PaymentMethod>) item.get("paymentMethods")
-        );
-        //paymentDetails.set(item.getObjectId("_id").toString());
-        return paymentDetails;
-    }
+//    }
+//
+//    private Document convertPaymentDetailsToDocument(PaymentDetails paymentDetails) {
+//        Document doc = new Document("emailAddress", paymentDetails.getEmailAddress())
+//                .append("cardNumber", paymentDetails.getCardNumber());
+//                .append("cvvNumber", paymentDetails.getCardNumber());
+//                .append("expiryDate", paymentDetails.getCardNumber());
+//                .append("cardNumber", paymentDetails.getCardNumber());
+//                .append("cardNumber", paymentDetails.getCardNumber());
+//                .append("cardNumber", paymentDetails.getCardNumber());
+//
+//        return doc;
+//    }
+//
+//
+//
+//    private PaymentDetails convertJsonToPaymentDetails(JSONObject json) {
+//
+//        List<PaymentMethod> paymentMethods = (List<PaymentMethod>) json.getJSONObject("paymentMethods");
+//        PaymentDetails paymentDetails = new PaymentDetails(
+//                json.getString("emailAddress"), paymentMethods
+//        );
+//
+//        return paymentDetails;
+//    }
+//
+//    private PaymentDetails convertDocumentToPaymentDetails(Document item) {
+//
+//        PaymentDetails paymentDetails = new PaymentDetails(
+//
+//                item.getString("emailAddress"),
+//                (List<PaymentMethod>) item.get("paymentMethods")
+//        );
+//        //paymentDetails.set(item.getObjectId("_id").toString());
+//        return paymentDetails;
+//    }
 
 
 //    @POST
@@ -436,7 +427,7 @@ public class MediaCompanyService {
 //            //String referenceID = APPCrypt.encrypt(business.getId()+PAYMENT);
 //
 //            //call paymentGateway Service
-//            /*Transaction transaction = new Transaction(
+//            /*Transactionss transaction = new Transactionss(
 //                    business.getId(),
 //                    business.getCardName(),
 //                    paymentDetails.getTransactionType(),
@@ -444,7 +435,7 @@ public class MediaCompanyService {
 //                    "USD",
 //                    String.valueOf(Instant.now().getEpochSecond()),
 //                    "REQUESTED");*/
-//            Transaction transaction = new Transaction(
+//            Transactionss transaction = new Transactionss(
 //                    mediacompany.getEmailAddress(),
 //                    paymentDetails.getTransactionType(),
 //                    paymentDetails.getAmount(),

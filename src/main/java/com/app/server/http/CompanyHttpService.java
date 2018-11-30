@@ -18,7 +18,6 @@ public class CompanyHttpService {
 //        ow = new ObjectMapper().writer().withDefaultPrettyPrinter();
     }
 
-
     @POST
     @Path("/registration")
     @Consumes({MediaType.APPLICATION_JSON})
@@ -34,14 +33,14 @@ public class CompanyHttpService {
     @Path("/authentication")
     @Consumes({MediaType.APPLICATION_JSON})
     @Produces({MediaType.APPLICATION_JSON})
-    public Response createProduct(Object request) throws JsonProcessingException {
+    public Response createProduct(Object request) {
         Object response = companyService.login(request);
 
-        if (response.equals("correct")) {
-            return Response.ok().entity("{\"message\": \"user successfully logged in\"}").type("application/json").build();
-        }
+//        if (response.equals("correct")) {
+            return Response.ok().entity(response).type("application/json").build();
+//        }
 
-        return Response.serverError().type("application/json").build();
+//        return Response.serverError().type("application/json").build();
     }
 
 }

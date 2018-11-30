@@ -3,20 +3,27 @@ package com.app.server.models;
 import java.util.List;
 
 public class Company {
-    
 
     String id;
     String name;
     String type;
     String emailAddress;
-    List<Transaction> transactionList;
+    List<Transactionss> transactionssList;
 
-    public List<Transaction> getTransactionList() {
-        return transactionList;
+    public Company(String id, String name, String type, String emailAddress, List<Transactionss> transactionssList) {
+        this.id = id;
+        this.name = name;
+        this.type = type;
+        this.emailAddress = emailAddress;
+        this.transactionssList = transactionssList;
     }
 
-    public void setTransactionList(List<Transaction> transactionList) {
-        this.transactionList = transactionList;
+    public List<Transactionss> getTransactionssList() {
+        return transactionssList;
+    }
+
+    public void setTransactionssList(List<Transactionss> transactionssList) {
+        this.transactionssList = transactionssList;
     }
 
     public String getId() {

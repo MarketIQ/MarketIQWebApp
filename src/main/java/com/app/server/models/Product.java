@@ -16,17 +16,17 @@ public class Product {
     String name;
     String startPrice;
     String endPrice;
-    String businessId;
+    String emailAddress;
 
-    public String getBusinessId() {
-        return businessId;
+    public String getEmailAddress() {
+        return emailAddress;
     }
 
-    public Product(String name, String startPrice, String endPrice, String businessId) {
+    public Product(String name, String startPrice, String endPrice, String emailAddress) {
         this.name = name;
         this.startPrice = startPrice;
         this.endPrice = endPrice;
-        this.businessId = businessId;
+        this.emailAddress = emailAddress;
     }
     public void setId(String id) {
         this.id = id;

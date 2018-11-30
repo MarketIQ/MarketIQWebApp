@@ -1,23 +1,14 @@
 package com.app.server.http;
 
-import com.app.server.http.exceptions.APPInternalServerException;
-import com.app.server.http.exceptions.APPNotFoundException;
 import com.app.server.http.utils.APPResponse;
-import com.app.server.http.utils.PATCH;
-import com.app.server.models.MediaCompany;
-import com.app.server.models.WishlistMediaCompany;
 import com.app.server.services.EmailService;
-import com.app.server.services.MediaCompanyService;
 import com.fasterxml.jackson.core.JsonProcessingException;
 import com.fasterxml.jackson.databind.ObjectMapper;
 import com.fasterxml.jackson.databind.ObjectWriter;
 import org.json.JSONObject;
 
-import javax.annotation.security.PermitAll;
 import javax.ws.rs.*;
 import javax.ws.rs.core.MediaType;
-import javax.ws.rs.core.Response;
-import java.util.List;
 
 @Path("notifications")
 

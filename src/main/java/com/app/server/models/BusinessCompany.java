@@ -3,9 +3,9 @@ public class BusinessCompany {
 
 
 
-    public String getId() {
-        return id;
-    }
+//    public String getId() {
+//        return id;
+//    }
     public String getName() {
         return name;
     }
@@ -19,12 +19,29 @@ public class BusinessCompany {
         return emailAddress;
     }
 
-    String id=null;
+   // String id=null;
     String name;
     String emailAddress;
     String address;
     String category;
     String phoneNumber;
+
+
+    public void setName(String name) {
+        this.name = name;
+    }
+
+    public void setEmailAddress(String emailAddress) {
+        this.emailAddress = emailAddress;
+    }
+
+    public void setAddress(String address) {
+        this.address = address;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
+    }
 
     public String getPhoneNumber() {
         return phoneNumber;
@@ -34,17 +51,10 @@ public class BusinessCompany {
         this.phoneNumber = phoneNumber;
     }
 
-
-
-    public BusinessCompany(String name, String emailAddress, String address, String category, String phoneNumber) {
-
-        this.name = name;
+    public BusinessCompany(String emailAddress) {
         this.emailAddress = emailAddress;
-        this.address = address;
-        this.category = category;
-        this.phoneNumber = phoneNumber;
     }
-    public void setId(String id) {
-        this.id = id;
-    }
+//    public void setId(String id) {
+//        this.id = id;
+//    }
 }

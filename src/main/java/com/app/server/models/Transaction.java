@@ -1,48 +1,61 @@
+
 package com.app.server.models;
+
+import com.app.server.models.PaymentDetails;
 
 public class Transaction {
 
-    String transactionId;
-    String timestamp;
-    String amount;
-    String subscriptionPeriod;
+    private String id = null;
+    private  String emailAddress;
+    private PaymentDetails paymentDetails;
+    private String transactionState;
+    private String transactionTime;
 
-    public Transaction(String timestamp, String amount, String subscriptionPeriod) {
-
-        this.timestamp = timestamp;
-        this.amount = amount;
-        this.subscriptionPeriod = subscriptionPeriod;
+    public Transaction(String emailAddress, PaymentDetails paymentDetails, String transactionState, String transactionTime) {
+        this.emailAddress = emailAddress;
+        this.paymentDetails = paymentDetails;
+        this.transactionState = transactionState;
+        this.transactionTime = transactionTime;
     }
 
-    public String getTransactionId() {
-        return transactionId;
+    public String getEmailAddress() {
+        return emailAddress;
     }
 
-    public void setTransactionId(String transactionId) {
-        this.transactionId = transactionId;
+    public void setEmailAddress(String emailAddress) {
+        this.emailAddress = emailAddress;
     }
 
-    public String getTimestamp() {
-        return timestamp;
+    public String getId() {
+        return id;
     }
 
-    public void setTimestamp(String timestamp) {
-        this.timestamp = timestamp;
+    public void setId(String id) {
+        this.id = id;
     }
 
-    public String getAmount() {
-        return amount;
+    public PaymentDetails getPaymentDetails() {
+        return paymentDetails;
     }
 
-    public void setAmount(String amount) {
-        this.amount = amount;
+    public void setPaymentDetails(PaymentDetails paymentDetails) {
+        this.paymentDetails = paymentDetails;
     }
 
-    public String getSubscriptionPeriod() {
-        return subscriptionPeriod;
+    public String getTransactionState() {
+        return transactionState;
     }
 
-    public void setSubscriptionPeriod(String subscriptionPeriod) {
-        this.subscriptionPeriod = subscriptionPeriod;
+    public void setTransactionState(String transactionState) {
+        this.transactionState = transactionState;
     }
+
+    public String getTransactionTime() {
+        return transactionTime;
+    }
+
+    public void setTransactionTime(String transactionTime) {
+        this.transactionTime = transactionTime;
+    }
+
 }
